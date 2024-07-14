@@ -1,6 +1,22 @@
 # Serverless Amazon Bedrock FastAPI
 
-A practical example of building a REST API on top of the Amazon Bedrock service. This guide demonstrates how to create a serverless REST API for a chatbot using AWS Lambda, FastAPI, and Python to interact with Amazon Bedrock LLM base models. The API retains chat history and context. It allows to describe each new chat with a short title.
+A practical example of building a chatbot service using Amazon Bedrock.
+
+The service exposes a REST API backed by Python and FastAPI, which can be embedded as a chatbot engine for your front-ends. For example, it can be used in the [`react-tailwind-chatbot-client`](https://github.com/mrnexeon/react-tailwind-chatbot-client) that is the part of this project.
+
+<p align="center">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/diagram-dark.png">
+        <source media="(prefers-color-scheme: light)" srcset="docs/diagram.png">
+        <img alt="Service Architecture Diagram" width="70%">
+    </picture>
+</p>
+
+Serverless architecture of the service allows you to pay for the usage as you go. Amazon Bedrock LLM models charge per tokens, AWS Lambda charges per request.
+
+The API retains chat history by storing each new chat session in DynamoDB and associating sessions with an ID. Using the ID, users can reference the context of previous messages.
+
+Additionally, each new chat session receives a short title that gives an idea about the topic.
 
 ## Getting Started
 
