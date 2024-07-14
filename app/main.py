@@ -1,3 +1,5 @@
+import datetime
+import json
 from fastapi import FastAPI, HTTPException, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from botocore.exceptions import ClientError
@@ -51,36 +53,65 @@ class Message(BaseModel):
     content: list[TextContent]
 
 
-class ChatResponse(BaseModel):
-    message: Message
-    chat_id: str = Field(default=None, examples=[
-                         "12345678-1234-5678-1234-567812345678"])
+class ChatSummary(BaseModel):
+    id: uuid.UUID = Field(default=None, examples=[
+                    "12345678-1234-5678-1234-567812345678"])
+    title: str = Field(default=None, examples=["Summer Destinations"])
+    created_at: datetime.datetime = Field(
+        default=None, examples=["2022-05-18T12:19:51.685496"])
+    updated_at: datetime.datetime = Field(
+        default=None, examples=["2022-05-18T12:19:51.685496"])
 
 
-class Chat(BaseModel):
+class Chat(ChatSummary):
     messages: list[Message]
 
 
-def save_chat_to_dynamodb(chat_id: str, chat: Chat):
+class ChatResponse(BaseModel):
+    message: Message
+    chat: ChatSummary
+
+
+def save_chat_to_dynamodb(chat: Chat):
     table.put_item(
-        Item={
-            'chat_id': chat_id,
-            'messages': [message.model_dump() for message in chat.messages]
-        }
+        Item=json.loads(chat.model_dump_json())
     )
 
 
-def get_chat_from_dynamodb(chat_id: str) -> Chat | None:
-    response = table.get_item(Key={'chat_id': chat_id})
+def get_chat_from_dynamodb(chat_id: uuid.UUID) -> Chat | None:
+    response = table.get_item(Key={'id': str(chat_id)})
     if 'Item' not in response:
         return None
-    return Chat(messages=[Message(**msg) for msg in response['Item']['messages']])
+    return Chat(**response['Item'])
+
+def get_chats_from_dynamodb() -> list[Chat]:
+    response = table.scan()
+    return [Chat(**item) for item in response['Items']]
+
+
+def generate_title(text: str) -> str:
+    user_message = f"""Give me a title to the text: {text}. 
+    Use maximum 2 words. Output only the title. Do not use quotes."""
+    conversation = [
+        {
+            "role": "user",
+            "content": [{"text": user_message}],
+        }
+    ]
+    response = brt.converse(
+        modelId=model_id,
+        messages=conversation,
+        inferenceConfig={"maxTokens": 128, "temperature": 0.5, "topP": 0.9},
+    )
+
+    title = response["output"]["message"]["content"][0]["text"]
+    return title
 
 
 @app.post('/chat')
 async def chat_with_the_model(
     prompt: str = Body(media_type="text/plain", example="Hello!"),
-    chat_id: str | None = Query(
+    chat_id: uuid.UUID | None = Query(
         default=None,
         description="A unique identifier for the chat session. This ID is generated when a new chat session is created and is used to retrieve and continue the chat session in future requests.",
         examples=["12345678-1234-5678-1234-567812345678"]
@@ -88,8 +119,15 @@ async def chat_with_the_model(
 ) -> ChatResponse:
     if chat_id is None:
         chat_id = str(uuid.uuid4())
-        chat = Chat(messages=[])
-        save_chat_to_dynamodb(chat_id, chat)
+        title = generate_title(prompt)
+
+        chat = Chat(id=chat_id,
+                    messages=[],
+                    title=title,
+                    created_at=datetime.datetime.now().isoformat(),
+                    updated_at=datetime.datetime.now().isoformat())
+
+        save_chat_to_dynamodb(chat)
     else:
         chat = get_chat_from_dynamodb(chat_id)
         if chat is None:
@@ -109,13 +147,14 @@ async def chat_with_the_model(
         raise HTTPException(status_code=500, detail=str(e))
 
     chat.messages.append(Message(**response["output"]["message"]))
-    save_chat_to_dynamodb(chat_id, chat)
+    chat.updated_at = datetime.datetime.now().isoformat()
+    save_chat_to_dynamodb(chat)
 
-    return ChatResponse(message=response["output"]["message"], chat_id=chat_id)
+    return ChatResponse(message=response["output"]["message"], chat=chat)
 
 
 @app.get('/chat/{chat_id}')
-async def get_chat_history(chat_id: str) -> list[Message]:
+async def get_chat_history(chat_id: uuid.UUID) -> list[Message]:
     chat = get_chat_from_dynamodb(chat_id)
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat not found")
@@ -123,9 +162,8 @@ async def get_chat_history(chat_id: str) -> list[Message]:
 
 
 @app.get('/chats')
-async def get_all_chats_ids() -> list[str]:
-    response = table.scan(ProjectionExpression="chat_id")
-    return [item['chat_id'] for item in response['Items']]
+async def get_all_chats_ids() -> list[ChatSummary]:
+    return get_chats_from_dynamodb()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
