@@ -20,6 +20,14 @@ The API retains chat history by storing each new chat session in DynamoDB and as
 
 Additionally, each new chat session receives a short title that gives an idea about the topic.
 
+After launching the service, you should be able to access the beautiful auto-generated Swagger UI Docs for the REST API:
+
+<br/>
+<p align="center">
+    <img alt="Swagger Docs" width="70%" src="docs/swagger.png" />
+</p>
+<br/>
+
 ## Getting Started
 
 Projects with `boto3` usually require configured AWS credentials. You can install the AWS CLI and set up an AWS profile on your machine to make the project work locally. Refer to the [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) and the [AWS CLI Configuration Guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) for more details.
