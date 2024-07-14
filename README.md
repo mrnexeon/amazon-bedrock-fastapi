@@ -9,7 +9,7 @@ The service exposes a REST API backed by Python and FastAPI, which can be embedd
     <picture>
         <source media="(prefers-color-scheme: dark)" srcset="docs/diagram-dark.png">
         <source media="(prefers-color-scheme: light)" srcset="docs/diagram.png">
-        <img alt="Service Architecture Diagram" width="60%">
+        <img alt="Service Architecture Diagram" width="70%">
     </picture>
 </p>
 <br/>
@@ -26,30 +26,38 @@ Projects with `boto3` usually require configured AWS credentials. You can instal
 
 Otherwise, the SAM project should automatically create the necessary roles to access AWS resources when it comes to deployment. Refer to the [Deployment](#deployment) section for more details.
 
-1. **Clone the repository:**
+1. **Request Access to Amazon Bedrock Foundation Models:**
+    Navigate to the [Amazon Bedrock Getting Started Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html#getting-started-model-access).
+    Follow the instructions on the page to request access to the following models:
+    - Amazon Titan Text G1 - Lite
+    - Amazon Titan Text G1 - Express
+    - Mistral AI Mistral Large *(Used by this project)*
+    - Mistral AI Mistral Small
+
+2. **Clone the repository:**
     ```bash
     git clone https://github.com/mrnexeon/amazon-bedrock-fastapi.git
     ```
 
-2. **Set up the virtual environment:**
+3. **Set up the virtual environment:**
     It is recommended to set up a Python virtual environment.
     ```bash
     python3 -m venv venv
     source venv/bin/activate  # On Windows use `.\venv\Scripts\activate`
     ```
 
-3. **Install dependencies:**
+4. **Install dependencies:**
     It is recommended to setup the Python virtual enviroment.
     ```bash
     python3 -m pip install -r app/requirements.txt
     ```
 
-4. **Launch the server:**
+5. **Launch the server:**
     ```bash
     fastapi dev
     ```
 
-5. **Test the API:**
+6. **Test the API:**
     Open your browser and go to http://127.0.0.1:8000/docs to access the interactive API documentation provided by FastAPI Swagger UI.
 
 ## Deployment
@@ -65,14 +73,6 @@ The service uses AWS SAM to deploy the API as a serverless AWS Lambda function. 
 3. **Install SAM CLI:**
     Follow the instructions to install the SAM CLI from [this link](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html).
 
-4. **Request Access to Amazon Bedrock Foundation Models:**
-    Navigate to the [Amazon Bedrock Getting Started Guide](https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html#getting-started-model-access).
-    Follow the instructions on the page to request access to the following models:
-    - Amazon Titan Text G1 - Lite
-    - Amazon Titan Text G1 - Express
-    - Mistral AI Mistral Large
-    - Mistral AI Mistral Small
-
 5. **Build the Service:**
     Open your shell and run:
     ```bash
@@ -85,7 +85,7 @@ The service uses AWS SAM to deploy the API as a serverless AWS Lambda function. 
     sam deploy --guided
     ```
 
-7. Watch out in the SAM deployment logs for the URL endpoints, e.g.:
+7. **Test the API:** Watch out in the SAM deployment logs for the URL endpoints, e.g.:
 
     ```bash
     Key                 Endpoint                                                                                     
