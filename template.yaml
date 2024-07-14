@@ -7,6 +7,19 @@ Globals:
     MemorySize: 128
 
 Resources:
+  ChatSessionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: id
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
   FunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -59,6 +72,9 @@ Resources:
       Runtime: python3.10
       Architectures:
         - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ChatSessionsTable
       Role: !GetAtt FunctionRole.Arn
       AutoPublishAlias: live
       FunctionUrlConfig:
@@ -71,3 +87,6 @@ Outputs:
   FunctionIamRole:
     Description: Implicit IAM Role created for function
     Value: !GetAtt FunctionRole.Arn
+  TableName:
+    Description: Chat Sessions DynamoDB Table Name
+    Value: !Ref ChatSessionsTable

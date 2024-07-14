@@ -44,22 +44,12 @@ Otherwise, the SAM project should automatically create the necessary roles to ac
     python3 -m pip install -r app/requirements.txt
     ```
 
-4. **Create the DynamoDB Table:**
-    Create a DynamoDB table called `ChatSessions` using the AWS CLI. Run the following command:
-    ```bash
-    aws dynamodb create-table \
-        --table-name ChatSessions \
-        --attribute-definitions AttributeName=SessionID,AttributeType=S \
-        --key-schema AttributeName=SessionID,KeyType=HASH \
-        --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
-    ```
-
-5. **Launch the server:**
+4. **Launch the server:**
     ```bash
     fastapi dev
     ```
 
-6. **Test the API:**
+5. **Test the API:**
     Open your browser and go to http://127.0.0.1:8000/docs to access the interactive API documentation provided by FastAPI Swagger UI.
 
 ## Deployment

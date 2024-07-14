@@ -10,6 +10,7 @@ from enum import Enum
 import uvicorn
 import boto3
 import uuid
+import os
 
 app = FastAPI(title="Chatbot API",
               description="A simple chatbot API using Amazon Bedrock Runtime",
@@ -34,7 +35,7 @@ brt = boto3.client("bedrock-runtime", region_name="us-east-1")
 model_id = "mistral.mistral-large-2402-v1:0"
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-table_name = 'ChatSessions'
+table_name = os.environ.get('TABLE_NAME')
 table = dynamodb.Table(table_name)
 
 
