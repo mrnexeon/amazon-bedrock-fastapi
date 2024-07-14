@@ -1,22 +1,24 @@
-import datetime
-import json
+# Author: Andrew Arkhipov, the.nexeon@gmail.com
+
 from fastapi import FastAPI, HTTPException, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
 from mangum import Mangum
-from enum import Enum
-
 import uvicorn
 import boto3
+
+from enum import Enum
+import datetime
 import uuid
+import json
 import os
 
 app = FastAPI(title="Chatbot API",
               description="A simple chatbot API using Amazon Bedrock Runtime",
               version="0.0.1",
               contact={
-                  "name": "Andrei Arkhipov",
+                  "name": "Andrew Arkhipov",
                   "email": "the.nexeon@gmail.com",
               })
 

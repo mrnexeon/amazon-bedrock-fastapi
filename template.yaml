@@ -64,7 +64,7 @@ Resources:
                   - logs:PutLogEvents
                 Resource: "arn:aws:logs:*:*:*"
 
-  Function:
+  RestApiFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: app/
@@ -81,12 +81,18 @@ Resources:
         AuthType: NONE
 
 Outputs:
-  Function:
+  FunctionArn:
     Description: Lambda Function ARN
-    Value: !GetAtt Function.Arn
+    Value: !GetAtt RestApiFunction.Arn
   FunctionIamRole:
     Description: Implicit IAM Role created for function
     Value: !GetAtt FunctionRole.Arn
   TableName:
     Description: Chat Sessions DynamoDB Table Name
     Value: !Ref ChatSessionsTable
+  Endpoint:
+    Description: URL of the REST API endpoint
+    Value: !GetAtt RestApiFunctionUrl.FunctionUrl
+  RestApiDocs:
+    Description: Swagger UI REST API documentation
+    Value: !Sub '${RestApiFunctionUrl.FunctionUrl}docs'

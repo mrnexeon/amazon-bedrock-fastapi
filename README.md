@@ -85,4 +85,14 @@ The service uses AWS SAM to deploy the API as a serverless AWS Lambda function. 
     sam deploy --guided
     ```
 
-7. Open the AWS Lambda Console in order to find the deployed function. In the function's page, open the `live` alias to access the public URL endpoint of your chat bot service.
+7. Watch out in the SAM deployment logs for the URL endpoints, e.g.:
+
+    ```bash
+    Key                 Endpoint                                                                                     
+    Description         URL of the REST API endpoint                                                                 
+    Value               https://mf6fo...pztt.lambda-url.us-east-1.on.aws/                        
+
+    Key                 RestApiDocs                                                                                  
+    Description         Swagger UI REST API documentation                                                            
+    Value               https://mf6fo...pztt.lambda-url.us-east-1.on.aws/docs
+    ```
